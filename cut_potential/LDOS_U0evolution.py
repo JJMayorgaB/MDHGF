@@ -275,7 +275,7 @@ ax_r.set_ylabel(r'$x/a$')
 ax_r.set_xticks(xticks_pos)
 ax_r.set_xticklabels(xticks_labels)
 
-title = fig.suptitle('', fontsize=18)
+title = fig.suptitle('', fontsize=18, y=1.02)
 plt.tight_layout()
 
 # -------------------------------------------------------

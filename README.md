@@ -1,99 +1,72 @@
 # MDHGF — Modified Dirac Hamiltonian Green Function
 
-Este repositorio contiene los códigos desarrollados en el proyecto de investigación **MDHGF** (Modified Dirac Hamiltonian Green Function). 
+Notas y documentación de los códigos del proyecto MDHGF. 
 
 ## Estructura del repositorio
 
 ```
 MDHGF/
-├── README.md              ← Este archivo
-├── LDOS_cut_T.py          ← LDOS con impureza finita via matriz T
-├── LDOS_bulk.py           ← DOS del bulk (sin impurezas)
-└── figures/               ← Directorio de salida de figuras
-    ├── LDOS_cut_T_DDMMAAAA/   ← Figuras generadas por LDOS_cut_T.py
-    └── LDOS_bulk_DDMMAAAA/    ← Figuras generadas por LDOS_bulk.py
+├── README.md
+├── cut_potential/                  ← Códigos del potencial de corte
+│   ├── LDOS_bulk.py               ← DOS del bulk sin impurezas
+│   ├── LDOS_cut_T.py              ← Mapa de calor rho(x,omega) con impureza
+│   ├── LDOS_edgestate.py          ← Cortes 1D de rho (edge states)
+│   └── LDOS_U0evolution.py        ← GIF animado variando U0
+└── figures/
+    └── cut_potential/
+        ├── LDOS_bulk_DDMMAAAA/
+        ├── LDOS_cut_T_DDMMAAAA/
+        ├── LDOS_edgestate_DDMMAAAA/
+        └── LDOS_U0evolution_DDMMAAAA/
 ```
 
 ---
 
 ## Descripción de cada código
 
-### `LDOS_cut_T.py` — LDOS con impureza tipo delta y matriz T
+### `cut_potential/LDOS_bulk.py` — DOS del bulk (sin impurezas)
 
-**Propósito:** Calcula y grafica la densidad local de estados $\rho(x, \omega)$ en presencia de una impureza puntual en $x_0$, resuelta mediante la ecuación de Dyson con una matriz T arbitraria.
+Calcula $\rho_0(\omega)$ del modelo SSH continuo. Solo depende de $u$, $v$, $a$ y del broadening $\eta$.
 
-#### Parámetros configurables (al inicio del archivo)
-
-| Parámetro | Descripción |
-|-----------|-------------|
-| `a` | Constante de red |
-| `u` | Hopping intracell |
-| `v` | Hopping intercell |
-| `U0` | Amplitud del potencial delta |
-| `x0` | Posición de la impureza |
-| `tipo` | Tipo de matriz T: `'I'`, `'A'` o `'B'` |
-| `N_x` | Número de puntos en espacio real |
-| `N_omega` | Número de puntos en frecuencia |
-| `x_max` | Extensión espacial (de $-x_\text{max}+x_0$ a $x_\text{max}+x_0$) |
-
-#### Opciones de la matriz T
-
-- **`'I'` (Identidad):** $\hat{T} = \mathbb{I}$ — la impureza acopla ambas subredes por igual.
-- **`'A'` (Proyector A):** $\hat{T} = \hat{\tau}_a = \begin{pmatrix} 1 & 0 \\ 0 & 0 \end{pmatrix}$ — la impureza solo actúa sobre la subred A.
-- **`'B'` (Proyector B):** $\hat{T} = \hat{\tau}_b = \begin{pmatrix} 0 & 0 \\ 0 & 1 \end{pmatrix}$ — la impureza solo actúa sobre la subred B.
-
-#### Funciones principales
-
-| Función | Descripción |
-|---------|-------------|
-| `T_matrix(tipo)` | Devuelve la matriz T 2×2 y su etiqueta LaTeX según el tipo (`'I'`, `'A'`, `'B'`). |
-| `kappa_plus(omega)` | Rama positiva de la dispersión $\kappa_+(\omega)$. |
-| `kappa_minus(omega)` | Rama negativa de la dispersión $\kappa_-(\omega)$. |
-| `signo_omega(omega)` | Devuelve $\text{sgn}(\omega)$; para $\omega=0$ retorna $-1$ para evitar singularidades. |
-| `beta_plus(omega, x, xp)` | Matriz $\beta_+(x, x')$ con elementos diagonales multiplicados por $\text{sgn}(\omega)$. |
-| `beta_minus(omega, x, xp)` | Matriz $\beta_-(x, x')$. |
-| `green_r(omega, x, xp)` | Función de Green retardada completa $g^r(x, x', \omega)$ (matriz 2×2). |
-| `delta_green_r(omega, x, xp, M_inv)` | Corrección perturbativa $\delta g^r$ usando $M^{-1}$ precalculado. |
-#### Salida
-
-Genera una figura con **dos paneles**:
-
-1. **Panel izquierdo:** Mapa de calor de $\rho(x, \omega) = \rho_0 + \delta\rho$ (colormap `inferno`).
-2. **Panel derecho:** Mapa de calor de $\delta\rho(x, \omega)$ (colormap `seismic`, centrado en cero).
-
-- Ejes: $\omega/m_1$ (horizontal) y $x/a$ (vertical), con ticks en unidades de $m_1$.
-- Título dinámico con el tipo de $\hat{T}$, $U_0$, $u$, $v$ y $a$.
-- Nombre de archivo dinámico: `ldos_T{tipo}_U0{U0}_u{u}_v{v}_a{a}_x0{x0}_{fase}.png`, donde `fase` es `top` (topológica, $v > u$) o `triv` (trivial, $v < u$).
-- Se guarda en `figures/LDOS_cut_T_{fecha}/` con la fecha del día en formato `DDMMAAAA`.
+**Salida:** Gráfica 1D de $\rho_0(\omega)$ vs $\omega/m_1$. Se guarda en `figures/cut_potential/LDOS_bulk_{fecha}/`.
 
 ---
 
-### `LDOS_bulk.py` — DOS del bulk
+### `cut_potential/LDOS_cut_T.py` — Mapa de calor $\rho(x,\omega)$
 
-**Propósito:** Calcula y grafica la densidad de estados del bulk $\rho_0(\omega)$ del modelo SSH continuo **sin impurezas** como función de la frecuencia.
+Calcula la LDOS completa $\rho(x,\omega) = \rho_0 + \delta\rho$ para un valor fijo de $U_0$ y genera mapas de calor.
 
-#### Parámetros configurables
+**Parámetros clave a modificar:** `u`, `v`, `U0`, `tipo`, `x_max`, `N_x`, `N_omega`.
 
-| Parámetro | Descripción |
-|-----------|-------------|
-| `u` | Hopping intracell |
-| `v` | Hopping intercell |
-| `a` | Constante de red |
-| `N_omega` | Número de puntos en frecuencia |
+**Salida:** Figura con dos paneles:
+1. Mapa de calor de $\rho(x,\omega)$
+2. Mapa de calor de $\delta\rho(x,\omega)$ 
 
-#### Fórmula implementada
+Se guarda en `figures/cut_potential/LDOS_cut_T_{fecha}/`. Nombre incluye todos los parámetros y la fase (`top` si $v>u$, `triv` si $v<u$).
 
-La DOS del bulk se calcula como:
+---
 
-$$\rho_0(\omega) = \frac{1}{\pi\, m_2^2\, \text{Re}(\kappa_+ + |\kappa_-|)} \left(\frac{|\omega|}{\sqrt{\kappa_+}} - \frac{\eta}{\sqrt{|\kappa_-|}}\right)$$
+### `cut_potential/LDOS_edgestate.py` — Cortes 1D para edge states
 
-donde el término $\eta/\sqrt{|\kappa_-|}$ captura la contribución evanescente.
+Mismo cálculo que `LDOS_cut_T.py` pero las gráficas son cortes 1D en lugar de mapas de calor. Pensado para la fase topológica ($v > u$) donde se buscan estados de borde.
 
-#### Salida
+**Salida:** Dos figuras separadas:
+1. **Cortes $\rho(\omega)$** en posiciones fijas $x=1$ y $x=8$ — rojo y azul respectivamente.
+2. **Corte $\rho(x)$** en $\omega=0$ — rojo. Muestra la localización espacial del estado de borde.
 
-- Gráfica 1D de $\rho_0(\omega)$ vs $\omega/m_1$ (línea roja sobre fondo blanco).
-- Ticks del eje horizontal en unidades de $m_1$.
-- Se guarda en `figures/LDOS_bulk_{fecha}/rho0_bulk.png`.
+Se guarda en `figures/cut_potential/LDOS_edgestate_{fecha}/`.
+
+---
+
+### `cut_potential/LDOS_U0evolution.py` — GIF animado variando $U_0$
+
+Genera una animación (GIF) que muestra cómo evoluciona $\rho(x,\omega)$ al barrer $U_0$.
+
+**Optimización clave:** Precomputa todas las funciones de Green ($g^r(x_0,x_0)$, $g^r(x,x_0)$, $g^r(x_0,x)$) una sola vez, ya que no dependen de $U_0$. Solo la inversión de $M$ y el producto matricial se recalculan en cada frame.
+
+**Mallado de $U_0$:** configurable. Actualmente usa un mallado no uniforme (pasos finos cerca de $U_0=0$ para capturar transiciones, pasos gruesos lejos).
+
+**Salida:** GIF con dos paneles ($\rho$ total y $\delta\rho$) que se actualiza frame a frame. Se guarda en `figures/cut_potential/LDOS_U0evolution_{fecha}/`.
 
 ---
 
@@ -101,15 +74,28 @@ donde el término $\eta/\sqrt{|\kappa_-|}$ captura la contribución evanescente.
 
 - **Python 3.8+**
 - **NumPy** — álgebra lineal y cálculo numérico
-- **Matplotlib** — visualización
-- **LaTeX** (opcional pero recomendado) — renderizado de etiquetas en las figuras. `LDOS_bulk.py` usa `text.usetex: True` por defecto; `LDOS_cut_T.py` lo tiene en `False` actualmente.
+- **Matplotlib** — visualización y animación (`matplotlib.animation` para el GIF)
+- **Pillow** — writer para guardar el GIF
 
 ## Ejecución
 
+Desde el directorio `cut_potential/`:
+
 ```bash
-# Desde el directorio MDHGF/
-python LDOS_cut_T.py
+cd cut_potential
 python LDOS_bulk.py
+python LDOS_cut_T.py
+python LDOS_edgestate.py
+python LDOS_U0evolution.py
 ```
 
-Las figuras se guardan automáticamente en subdirectorios dentro de `figures/` con la fecha del día.
+Las figuras se guardan automáticamente en `figures/cut_potential/` con subdirectorios por fecha (formato `DDMMAAAA`).
+
+---
+
+## Notas importantes
+
+- El broadening imaginario es $\eta = 2\Delta\omega$ (dos veces el paso en frecuencia). Si se aumenta `N_omega` los picos se vuelven más finos.
+- `LDOS_cut_T.py` y `LDOS_edgestate.py` usan formulaciones algebraicamente equivalentes de Dyson. La diferencia es que una multiplica/divide por $U_0$; ambas dan el mismo resultado.
+- La fase topológica ($v > u$) vs trivial ($v < u$) se marca automáticamente en los nombres de archivo.
+- Para $U_0 \to \infty$, $M \to U_0\, g\hat{T}$ y la corrección se satura, recuperando la condición de contorno tipo hard-wall.
