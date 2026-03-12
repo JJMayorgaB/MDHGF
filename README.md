@@ -1,7 +1,5 @@
 # MDHGF — Modified Dirac Hamiltonian Green Function
 
-## Contenido del semillero
-
 Este repositorio contiene los códigos desarrollados en el proyecto de investigación **MDHGF** (Modified Dirac Hamiltonian Green Function). 
 
 ## Estructura del repositorio
