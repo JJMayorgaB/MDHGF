@@ -241,7 +241,7 @@ xticks_mult = np.arange(-5, 6)
 xticks_pos = xticks_mult * m1
 xticks_labels = [f'${int(m)}$' if m != 0 else '0' for m in xticks_mult]
 
-fig, axes = plt.subplots(1, 2, figsize=(16, 6))
+fig, axes = plt.subplots(1, 2, figsize=(12, 5))
 
 # Calcular primer frame para establecer escalas
 rho_first = compute_rho_total(U0_vals[0])
@@ -317,6 +317,6 @@ anim = animation.FuncAnimation(
 )
 
 gif_name = os.path.join(outdir, f'ldos_T{tipo}_U0sweep_u{u}_v{v}_a{a}_x0{x0}_{fase}.gif')
-anim.save(gif_name, writer='pillow', fps=15)
+anim.save(gif_name, writer='pillow', fps=15, dpi=80)
 print(f"GIF guardado en {gif_name}")
 plt.close()
