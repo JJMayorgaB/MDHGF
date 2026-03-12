@@ -29,14 +29,14 @@ plt.rcParams.update({
 # Parámetros del sistema
 # -------------------------------------------------------
 a  = 1.0
-u  = 0.8
-v  = 1.0
+u  = 1.0
+v  = 0.5
 m1 = v - u          # masa 1
 m2 = u * a**2 / 2   # masa 2
 A  = u * a          # coeficiente off-diagonal
 
 # Parámetro de la perturbación
-U0 = 1000.0          # amplitud del potencial delta
+U0 = 0.001         # amplitud del potencial delta
 
 # Posición del corte / impureza
 x0 = 0.0
@@ -80,35 +80,42 @@ def signo_omega(omega):
 
 # -------------------------------------------------------
 # Construcción de matrices beta_± (2x2)
-# beta_+ y beta_- son los bloques matriciales que
-# aparecen en g^r(x,x',omega).
 # -------------------------------------------------------
+def sqrt_retarded(k, omega):
+    """
+    Calcula el momento efectivo combinando la raíz cuadrada 
+    y la condición de contorno físicamente correcta.
+    """
+    s = np.sqrt(k + 0j)
+    
+    # Corte físico: si la energía supera el gap, estamos en el bulk (onda propagante)
+    if np.abs(omega) >= np.abs(m1):
+        return signo_omega(omega) * s
+    else:
+        # Estamos dentro del gap (onda evanescente)
+        # Forzamos que la parte imaginaria sea estrictamente positiva para el decaimiento
+        if np.imag(s) < 0:
+            return -s
+        return s
+
 def beta_plus(omega, x, xp):
-    """
-    Matriz beta_+(x,x') según la definición del texto.
-    sgn(omega) multiplica los elementos diagonales.
-    """
     w    = omega + 1j * eta
     kp   = kappa_plus(omega)
-    sqkp = np.sqrt(kp + 0j)
+    
+    # CORRECCIÓN 2: agregamos 'omega' como segundo argumento
+    sqkp = sqrt_retarded(kp, omega)      
 
-
-
-    d11 = signo_omega(omega) * ((w - m1) / sqkp + m2 * sqkp)
-    d22 = signo_omega(omega) * ((w + m1) / sqkp - m2 * sqkp)
+    d11 = (w - m1) / sqkp + m2 * sqkp
+    d22 = (w + m1) / sqkp - m2 * sqkp
     off = A * np.sign(x - xp)
 
     return np.array([[d11, off],
                      [off, d22]], dtype=complex)
 
 def beta_minus(omega, x, xp):
-    """
-    Matriz beta_-(x,x') según la definición del texto.
-    """
-    w    = omega + 1j * eta
-    km   = kappa_minus(omega)
-    abskm = np.abs(km)
-    sqkm  = np.sqrt(abskm + 0j)
+    w     = omega + 1j * eta
+    km    = kappa_minus(omega)
+    sqkm  = np.sqrt(np.abs(km) + 0j)
     i_sq  = 1j * sqkm
 
     d11 = (w - m1) / i_sq + m2 * i_sq
@@ -118,17 +125,13 @@ def beta_minus(omega, x, xp):
     return np.array([[d11, off],
                      [off, d22]], dtype=complex)
 
-# -------------------------------------------------------
-# Green's function no perturbada g^r(x, xp, omega)
-# -------------------------------------------------------
 def green_r(omega, x, xp):
-    """
-    g^r(x, x', omega) completa (matriz 2x2).
-    """
     kp    = kappa_plus(omega)
     km    = kappa_minus(omega)
     abskm = np.abs(km)
-    sqkp  = np.sqrt(kp   + 0j)
+    
+    # CORRECCIÓN 3: agregamos 'omega' como segundo argumento
+    sqkp  = sqrt_retarded(kp, omega)         
     sqkm  = np.sqrt(abskm + 0j)
 
     denom = 2.0 * m2**2 * (kp + abskm)
@@ -136,9 +139,9 @@ def green_r(omega, x, xp):
     Bp = beta_plus (omega, x, xp)
     Bm = beta_minus(omega, x, xp)
 
-    dist = np.abs(x - xp)
-    exp_p = np.exp( signo_omega(omega) * 1j * sqkp * dist)
-    exp_m = np.exp(-sqkm  * dist)
+    dist  = np.abs(x - xp)
+    exp_p = np.exp(1j * sqkp * dist)  
+    exp_m = np.exp(-sqkm * dist)
 
     return (-1j / denom) * (Bp * exp_p - Bm * exp_m)
 
@@ -162,8 +165,8 @@ def delta_green_r(omega, x, xp, M_inv):
 # Grillas
 # -------------------------------------------------------
 x_max = 10
-N_x = 100*x_max
-N_omega = 5000
+N_x = 20*x_max
+N_omega = 200
 
 x_vals     = np.linspace(-x_max+x0, x_max+x0, N_x)
 omega_vals = np.linspace(-5 * m1, 5 * m1, N_omega)
