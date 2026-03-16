@@ -61,6 +61,22 @@ def kappa_minus(omega):
 def signo_omega(omega):
     return np.sign(omega) if omega != 0 else -1.0  # evita sgn(0)=0
 
+
+def sqrt_retarded(k, omega):
+    """
+    Raiz cuadrada con seleccion de rama retardada.
+    Fuera del gap: onda propagante con signo fijado por sgn(omega).
+    Dentro del gap: rama evanescente con parte imaginaria no negativa.
+    """
+    s = np.sqrt(k + 0j)
+
+    if np.abs(omega) >= np.abs(m1):
+        return signo_omega(omega) * s
+
+    if np.imag(s) < 0:
+        return -s
+    return s
+
 # -------------------------------------------------------
 # Momentos físicos k_±
 #
@@ -71,13 +87,7 @@ def signo_omega(omega):
 # -------------------------------------------------------
 def k_plus(omega):
     kp = kappa_plus(omega)
-    if np.abs(omega) >= np.abs(m1):
-        # propagante: raíz real, signo determinado por velocidad de grupo
-        s = np.real(np.sqrt(kp + 0j))
-        return signo_omega(omega) * s
-    else:
-        # evanescente: parte imaginaria positiva → decae hacia +x
-        return 1j * np.sqrt(np.abs(kp))
+    return sqrt_retarded(kp, omega)
 
 def k_minus(omega):
     # k_- siempre evanescente

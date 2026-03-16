@@ -241,7 +241,7 @@ xticks_mult = np.arange(-5, 6)
 xticks_pos = xticks_mult * m1
 xticks_labels = [f'${int(m)}$' if m != 0 else '0' for m in xticks_mult]
 
-fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+fig, axes = plt.subplots(1, 2, figsize=(14, 5))
 
 # Calcular primer frame para establecer escalas
 rho_first = compute_rho_total(U0_vals[0])
@@ -309,14 +309,24 @@ def update(frame_idx):
     return [im_l, im_r, title]
 
 # -------------------------------------------------------
-# Crear y guardar GIF
+# Crear y guardar animación (cambiar formato aquí)
 # -------------------------------------------------------
-print("Generando GIF ...")
+formato = 'mp4'  # 'gif' o 'mp4'
+
 anim = animation.FuncAnimation(
     fig, update, frames=len(U0_vals), interval=100, blit=False
 )
 
-gif_name = os.path.join(outdir, f'ldos_T{tipo}_U0sweep_u{u}_v{v}_a{a}_x0{x0}_{fase}.gif')
-anim.save(gif_name, writer='pillow', fps=15, dpi=80)
-print(f"GIF guardado en {gif_name}")
+base_name = f'ldos_T{tipo}_U0sweep_u{u}_v{v}_a{a}_x0{x0}_{fase}'
+
+if formato == 'gif':
+    out_file = os.path.join(outdir, base_name + '.gif')
+    print("Generando GIF ...")
+    anim.save(out_file, writer='pillow', fps=15, dpi=150)
+elif formato == 'mp4':
+    out_file = os.path.join(outdir, base_name + '.mp4')
+    print("Generando MP4 ...")
+    anim.save(out_file, writer='ffmpeg', fps=15, dpi=150)
+
+print(f"Animación guardada en {out_file}")
 plt.close()

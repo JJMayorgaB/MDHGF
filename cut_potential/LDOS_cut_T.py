@@ -59,9 +59,9 @@ def T_matrix(tipo='I'):
         return np.array([[0, 0],
                          [0, 1]], dtype=complex), T_label
 
-tipo = 'I'
+tipo = 'A'
 T_hat, T_label = T_matrix(tipo)
-
+print(f"Usando matriz T̂ tipo {tipo}: {T_label}")
 # -------------------------------------------------------
 # Dispersión: kappa_+(omega) y kappa_-(omega)
 # -------------------------------------------------------
@@ -164,8 +164,8 @@ def delta_green_r(U0, omega, x, xp, M_inv):
 # -------------------------------------------------------
 # Grillas
 # -------------------------------------------------------
-x_max = 10.0
-N_x = int(20*x_max)
+x_max = 5.0
+N_x = int(40*x_max)
 N_omega = 200
 
 x_vals     = np.linspace(-x_max+x0, x_max+x0, N_x)
@@ -227,7 +227,7 @@ im = ax.imshow(
     origin='lower',
     aspect='auto',
     extent=[omega_vals[0], omega_vals[-1], x_vals[0], x_vals[-1]],
-    cmap='seismic',
+    cmap='inferno',
     vmin=vmin,
     vmax=vmax
 )
@@ -252,7 +252,7 @@ im2 = ax.imshow(
     origin='lower',
     aspect='auto',
     extent=[omega_vals[0], omega_vals[-1], x_vals[0], x_vals[-1]],
-    cmap='inferno',
+    cmap='seismic',
     vmin=-vmax2,
     vmax= vmax2
 )
