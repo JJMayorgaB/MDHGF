@@ -29,7 +29,7 @@ plt.rcParams.update({
 # Parámetros del sistema
 # -------------------------------------------------------
 a  = 1.0
-u  = 1.5
+u  = 0.5
 v  = 1.0
 m1 = v - u          # masa 1
 m2 = u * a**2 / 2   # masa 2
