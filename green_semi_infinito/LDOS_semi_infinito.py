@@ -25,8 +25,8 @@ plt.rcParams.update({
 # Parámetros del sistema
 # -------------------------------------------------------
 a  = 1.0
-u  = 0.5
-v  = 1.0
+u  = 1.0
+v  = 0.5
 m1 = v - u          # masa 1
 m2 = u * a**2 / 2   # masa 2
 A  = u * a          # coeficiente off-diagonal
@@ -37,8 +37,8 @@ print(f"Parámetros: u={u}, v={v}, a={a}, m1={m1}, m2={m2}, A={A}")
 # Grillas
 # -------------------------------------------------------
 x_max   = 10.0
-N_x     = 500
-N_omega = 500
+N_x     = 300
+N_omega = 300
 
 x_vals     = np.linspace(0, x_max, N_x)          # x > 0 (semi-infinito)
 omega_vals = np.linspace(-5 * m1, 5 * m1, N_omega)
@@ -78,21 +78,17 @@ def sqrt_retarded(k, omega):
     return s
 
 # -------------------------------------------------------
-# Momentos físicos k_±
+# Momento físico k_+
 #
 #   k_+ = sgn(omega)*sqrt(kappa_+)  si |omega| >= m1   (propagante)
-#       = i*sqrt(|kappa_+|)          si |omega| < m1    (evanescente)
+#       = rama evanescente Im>0      si |omega| < m1
 #
-#   k_- = i*sqrt(|kappa_-|)          siempre evanescente
+#   k_- : evanescente, se usa directamente como
+#         1j * sqrt(|kappa_-|)  
 # -------------------------------------------------------
 def k_plus(omega):
     kp = kappa_plus(omega)
     return sqrt_retarded(kp, omega)
-
-def k_minus(omega):
-    # k_- siempre evanescente
-    km = kappa_minus(omega)
-    return 1j * np.sqrt(np.abs(km))
 
 # -------------------------------------------------------
 # M(k) = -m1 + m2*k^2  y  alpha(k) = (omega - M(k)) / (A*k)
@@ -119,7 +115,7 @@ def N_norm(k, omega):
 # -------------------------------------------------------
 def reflection_coeffs(omega):
     kp = k_plus(omega)
-    km = k_minus(omega)
+    km = 1j * np.sqrt(np.abs(kappa_minus(omega)))
 
     ap = alpha(kp, omega)
     am = alpha(km, omega)
@@ -143,7 +139,7 @@ def reflection_coeffs(omega):
 # -------------------------------------------------------
 def ldos(x, omega):
     kp = k_plus(omega)
-    km = k_minus(omega)
+    km = 1j * np.sqrt(np.abs(kappa_minus(omega)))
 
     r_pp, r_pm, r_mm, r_mp = reflection_coeffs(omega)
 
@@ -232,10 +228,10 @@ plt.tight_layout()
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
 project_root = os.path.dirname(script_dir)
-outdir = os.path.join(project_root, 'figures', 'green_semi_infinito')
-os.makedirs(outdir, exist_ok=True)
 fase  = 'top' if v > u else 'triv'
 fecha = datetime.now().strftime('%d%m%Y')
+outdir = os.path.join(project_root, 'figures', 'green_semi_infinito', f'LDOS_semi_infinito_{fecha}')
+os.makedirs(outdir, exist_ok=True)
 filename = os.path.join(outdir, f'ldos_semiinfinite_u{u}_v{v}_{fase}_{fecha}.png')
 plt.savefig(filename, dpi=150, bbox_inches='tight')
 plt.show()

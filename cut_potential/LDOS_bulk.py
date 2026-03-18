@@ -23,7 +23,7 @@ plt.rcParams.update({
 })
 
 # Parámetros del sistema
-u = 0.4
+u = 0.5
 v = 1.0
 a = 1.0
 

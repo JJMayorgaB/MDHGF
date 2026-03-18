@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 # Estilo de figura
 # -------------------------------------------------------
 plt.rcParams.update({
-    'text.usetex': False,
+    'text.usetex': True,
     'text.latex.preamble': r'''
         \usepackage{amsmath}
         \usepackage{amssymb}
@@ -13,12 +13,12 @@ plt.rcParams.update({
         \usepackage{bm}
     ''',
     'font.family': 'serif',
-    'font.size': 17,
-    'axes.labelsize': 17,
-    'axes.titlesize': 18,
-    'xtick.labelsize': 15,
-    'ytick.labelsize': 15,
-    'legend.fontsize': 15,
+    'font.size': 24,
+    'axes.labelsize': 24,
+    'axes.titlesize': 25,
+    'xtick.labelsize': 22,
+    'ytick.labelsize': 22,
+    'legend.fontsize': 22,
     'axes.facecolor': 'white',
     'figure.facecolor': 'white',
     'axes.edgecolor': 'black',
@@ -29,8 +29,8 @@ plt.rcParams.update({
 # Parámetros del sistema
 # -------------------------------------------------------
 a  = 1.0
-u  = 1.0
-v  = 0.5
+u  = 0.5
+v  = 1.0
 m1 = v - u          # masa 1
 m2 = u * a**2 / 2   # masa 2
 A  = u * a          # coeficiente off-diagonal
@@ -165,14 +165,14 @@ def delta_green_r(omega, x, xp, M_inv):
 # Grillas
 # -------------------------------------------------------
 x_max = 10
-N_x = 100*x_max
+N_x = 50*x_max
 N_omega = 500
 
 x_vals     = np.linspace(-x_max+x0, x_max+x0, N_x)
 omega_vals = np.linspace(-5 * m1, 5 * m1, N_omega)
 
 # Pequeño broadening imaginario
-eta = 2 * (omega_vals[1] - omega_vals[0])
+eta = 1.0 * (omega_vals[1] - omega_vals[0])
 
 # -------------------------------------------------------
 # Loop principal: delta_rho[i_omega, i_x]
@@ -231,7 +231,7 @@ xticks_labels = [f'${int(m)}$' if m != 0 else '0' for m in xticks_mult]
 # --- Figura 1: cortes rho(omega) en x = 1 y x = 8 ---
 x_cuts  = [1, 8]
 colors  = ['red', 'blue']
-fig1, ax1 = plt.subplots(figsize=(10, 6))
+fig1, ax1 = plt.subplots(figsize=(10, 8))
 for xc, col in zip(x_cuts, colors):
     idx = np.argmin(np.abs(x_vals - xc))
     ax1.plot(omega_vals, rho_total[:, idx], color=col, linewidth=1, label=rf'$x = {xc}$')
@@ -252,7 +252,7 @@ print(f"Figura 1 guardada en {fname1}")
 
 # --- Figura 2: corte rho(x) en omega = 0 ---
 idx_w0 = np.argmin(np.abs(omega_vals - 0.0))
-fig2, ax2 = plt.subplots(figsize=(10, 6))
+fig2, ax2 = plt.subplots(figsize=(10, 8))
 ax2.plot(x_vals, rho_total[idx_w0, :], color='red', linewidth=1)
 ax2.set_xlabel(r'$x/a$')
 ax2.set_ylabel(r'$\rho(\omega=0, x)$')

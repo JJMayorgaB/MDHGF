@@ -13,12 +13,12 @@ plt.rcParams.update({
         \usepackage{bm}
     ''',
     'font.family': 'serif',
-    'font.size': 17,
-    'axes.labelsize': 17,
-    'axes.titlesize': 18,
-    'xtick.labelsize': 15,
-    'ytick.labelsize': 15,
-    'legend.fontsize': 15,
+    'font.size': 24,
+    'axes.labelsize': 24,
+    'axes.titlesize': 25,
+    'xtick.labelsize': 22,
+    'ytick.labelsize': 22,
+    'legend.fontsize': 22,
     'axes.facecolor': 'white',
     'figure.facecolor': 'white',
     'axes.edgecolor': 'black',
@@ -29,7 +29,7 @@ plt.rcParams.update({
 # Parámetros del sistema
 # -------------------------------------------------------
 a  = 1.0
-u  = 0.5
+u  = 1.5
 v  = 1.0
 m1 = v - u          # masa 1
 m2 = u * a**2 / 2   # masa 2
@@ -59,7 +59,7 @@ def T_matrix(tipo='I'):
         return np.array([[0, 0],
                          [0, 1]], dtype=complex), T_label
 
-tipo = 'A'
+tipo = 'I'
 T_hat, T_label = T_matrix(tipo)
 print(f"Usando matriz T̂ tipo {tipo}: {T_label}")
 # -------------------------------------------------------
@@ -164,15 +164,15 @@ def delta_green_r(U0, omega, x, xp, M_inv):
 # -------------------------------------------------------
 # Grillas
 # -------------------------------------------------------
-x_max = 5.0
-N_x = int(40*x_max)
+x_max = 10.0
+N_x = int(20*x_max)
 N_omega = 200
 
 x_vals     = np.linspace(-x_max+x0, x_max+x0, N_x)
 omega_vals = np.linspace(-5 * m1, 5 * m1, N_omega)
 
 # Pequeño broadening imaginario
-eta = 2 * (omega_vals[1] - omega_vals[0])
+eta = 1.0 * (omega_vals[1] - omega_vals[0])
 
 # -------------------------------------------------------
 # Loop principal: delta_rho[i_omega, i_x]
@@ -215,7 +215,7 @@ rho_total = rho0_arr[:, np.newaxis] + delta_rho
 # -------------------------------------------------------
 # Gráfica: mapa de calor rho(x, omega)
 # -------------------------------------------------------
-fig, axes = plt.subplots(1, 2, figsize=(16, 6))
+fig, axes = plt.subplots(1, 2, figsize=(18, 8))
 
 # --- Panel izquierdo: LDOS total ---
 ax = axes[0]
@@ -268,7 +268,7 @@ ax.set_xticklabels(xticks_labels)
 
 plt.suptitle(
     rf'LDOS con {T_label}, $U_0={U0}$, $u={u}$, $v={v}$, $a={a}$',
-    fontsize=18
+    fontsize=25
 )
 plt.tight_layout()
 import os

@@ -16,12 +16,12 @@ plt.rcParams.update({
         \usepackage{bm}
     ''',
     'font.family': 'serif',
-    'font.size': 17,
-    'axes.labelsize': 17,
-    'axes.titlesize': 18,
-    'xtick.labelsize': 15,
-    'ytick.labelsize': 15,
-    'legend.fontsize': 15,
+    'font.size': 24,
+    'axes.labelsize': 24,
+    'axes.titlesize': 25,
+    'xtick.labelsize': 22,
+    'ytick.labelsize': 22,
+    'legend.fontsize': 22,
     'axes.facecolor': 'white',
     'figure.facecolor': 'white',
     'axes.edgecolor': 'black',
@@ -176,8 +176,8 @@ def delta_green_r(U0, omega, x, xp, M_inv):
 # Grillas
 # -------------------------------------------------------
 x_max = 10
-N_x = 20*x_max
-N_omega = 200
+N_x = 50*x_max
+N_omega = 500
 
 x_vals     = np.linspace(-x_max+x0, x_max+x0, N_x)
 omega_vals = np.linspace(-5 * m1, 5 * m1, N_omega)
@@ -241,7 +241,7 @@ xticks_mult = np.arange(-5, 6)
 xticks_pos = xticks_mult * m1
 xticks_labels = [f'${int(m)}$' if m != 0 else '0' for m in xticks_mult]
 
-fig, axes = plt.subplots(1, 2, figsize=(14, 5))
+fig, axes = plt.subplots(1, 2, figsize=(18, 8))
 
 # Calcular primer frame para establecer escalas
 rho_first = compute_rho_total(U0_vals[0])
@@ -275,7 +275,7 @@ ax_r.set_ylabel(r'$x/a$')
 ax_r.set_xticks(xticks_pos)
 ax_r.set_xticklabels(xticks_labels)
 
-title = fig.suptitle('', fontsize=18, y=1.02)
+title = fig.suptitle('', fontsize=25, y=1.02)
 plt.tight_layout()
 
 # -------------------------------------------------------
